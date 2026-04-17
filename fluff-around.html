@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluff Around Find Out — by Britt</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF3DA6;
+    --pink-light: #FF79C6;
+    --pink-pale: #FFB3E0;
+    --pink-glow: rgba(255,61,166,0.35);
+    --black: #0a0a0a;
+    --dark: #111118;
+    --card: #17171f;
+    --card2: #1e1e28;
+    --border: rgba(255,61,166,0.25);
+    --text: #f0e6f6;
+    --muted: #9988aa;
+    --white: #ffffff;
+    --bubble: rgba(255,179,224,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Floating bubbles background */
+  .bubbles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,179,224,0.15), rgba(255,61,166,0.04));
+    border: 1px solid rgba(255,61,166,0.12);
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) scale(0.8); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+  .logo-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--pink);
+    overflow: hidden;
+    box-shadow: 0 0 16px var(--pink-glow);
+    flex-shrink: 0;
+    background: var(--dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .logo-circle img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .header-text h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+  .header-text p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--pink), #c2006e);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Tab nav */
+  .tab-nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--pink-light); border-color: var(--pink); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--pink), #c2006e);
+    border-color: var(--pink);
+    color: white;
+    box-shadow: 0 0 12px var(--pink-glow);
+  }
+
+  /* Main content */
+  main {
+    position: relative;
+    z-index: 10;
+    padding: 20px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Section headers */
+  .section-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.1rem;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--pink); }
+
+  .card-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    margin-bottom: 8px;
+  }
+
+  /* Upload area */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bubble);
+    margin-bottom: 14px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--pink);
+    background: rgba(255,61,166,0.06);
+  }
+  .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .upload-zone h3 {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .upload-zone p { font-size: 0.75rem; color: var(--muted); }
+  #fileInput { display: none; }
+
+  /* Photo pairs grid */
+  .pairs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .photo-slot {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    position: relative;
+  }
+  .photo-slot:hover { border-color: var(--pink); }
+  .photo-slot img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 11px;
+  }
+  .photo-slot .slot-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .photo-slot .slot-icon { font-size: 1.6rem; }
+  .slot-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .slot-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.05em;
+  }
+  .slot-badge.before { background: #444; color: #ccc; }
+  .slot-badge.after { background: var(--pink); color: white; }
+
+  /* Post type selector */
+  .post-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .post-type-btn {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .post-type-btn:hover { border-color: var(--pink-light); }
+  .post-type-btn.selected {
+    border-color: var(--pink);
+    background: rgba(255,61,166,0.1);
+  }
+  .post-type-btn .pt-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .post-type-btn .pt-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .post-type-btn.selected .pt-label { color: var(--pink); }
+
+  /* Caption output */
+  .caption-box {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text);
+    min-height: 100px;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .caption-placeholder {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.8rem;
+  }
+
+  /* Sound suggestion */
+  .sound-card {
+    background: linear-gradient(135deg, rgba(255,61,166,0.1), rgba(194,0,110,0.08));
+    border: 1px solid var(--pink);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .sound-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .sound-info { flex: 1; }
+  .sound-info .sound-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    margin-bottom: 2px;
+  }
+  .sound-info .sound-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .sound-info .sound-why {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.82rem;
+    padding: 10px 18px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--pink), #c2006e);
+    color: white;
+    box-shadow: 0 4px 16px var(--pink-glow);
+    width: 100%;
+    justify-content: center;
+    font-size: 0.88rem;
+    padding: 13px;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--pink-glow);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--card2);
+    color: var(--pink-light);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--pink); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    padding: 7px 14px;
+  }
+  .btn-ghost:hover { color: var(--pink-light); border-color: var(--pink); }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  /* Schedule queue */
+  .queue-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .queue-thumb {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    background: var(--card2);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    border: 1px solid var(--border);
+  }
+  .queue-thumb img { width:100%; height:100%; object-fit:cover; }
+  .queue-info { flex: 1; }
+  .queue-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+  }
+  .queue-date {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--pink);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .queue-type {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 8px;
+    letter-spacing: 0.05em;
+  }
+  .qt-carousel { background: rgba(255,61,166,0.15); color: var(--pink); }
+  .qt-reel { background: rgba(130,80,255,0.15); color: #a070ff; }
+  .qt-edu { background: rgba(0,200,180,0.15); color: #00c8b4; }
+  .queue-caption {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .queue-sound {
+    font-size: 0.7rem;
+    color: var(--pink-pale);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .queue-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .queue-actions button {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.9rem;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .queue-actions button:hover { border-color: var(--pink); color: var(--pink); }
+
+  /* Week view */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .day-cell {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 4px;
+    text-align: center;
+    min-height: 70px;
+  }
+  .day-cell.has-post { border-color: rgba(255,61,166,0.4); }
+  .day-cell.today { border-color: var(--pink); background: rgba(255,61,166,0.06); }
+  .day-name {
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .day-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--pink);
+    margin: 2px auto;
+    box-shadow: 0 0 6px var(--pink-glow);
+  }
+  .day-dot.reel { background: #a070ff; box-shadow: 0 0 6px rgba(160,112,255,0.4); }
+  .day-dot.edu { background: #00c8b4; box-shadow: 0 0 6px rgba(0,200,180,0.4); }
+
+  /* Scripts tab */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .topic-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .topic-btn:hover { border-color: var(--pink); }
+  .topic-btn.selected { border-color: var(--pink); background: rgba(255,61,166,0.08); }
+  .topic-emoji { font-size: 1.3rem; margin-bottom: 4px; }
+  .topic-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .topic-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .script-output {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .script-output.visible { display: block; }
+  .script-section {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .script-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .script-section-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .script-text {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .shot-note {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 2px solid var(--border);
+  }
+
+  /* Voice profile tab */
+  .profile-stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .profile-stat:last-child { border-bottom: none; }
+  .profile-stat-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .profile-stat-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pink);
+    margin-bottom: 3px;
+  }
+  .profile-stat-value {
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .tag {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--pink-light);
+  }
+
+  /* Loading state */
+  .generating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--pink);
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 10px 0;
+  }
+  .dot-pulse span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--pink);
+    margin: 0 2px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .copy-btn:hover { border-color: var(--pink); color: var(--pink); }
+  .copy-btn.copied { border-color: #00c8b4; color: #00c8b4; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--pink);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px var(--pink-glow);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 1000;
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--pink); }
+  textarea::placeholder { color: var(--muted); }
+
+  select {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23FF3DA6' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+  select:focus { border-color: var(--pink); }
+  select option { background: var(--dark); }
+
+  label.field-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+
+  .field-group { margin-bottom: 14px; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-state .es-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .empty-state p { font-size: 0.82rem; line-height: 1.5; }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 18px 0;
+  }
+
+  /* Platform pills */
+  .platform-pills {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .platform-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .platform-pill.active { border-color: var(--pink); color: var(--pink); background: rgba(255,61,166,0.08); }
+  .platform-pill .pill-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.4rem;
+    color: var(--pink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating bubbles -->
+<div class="bubbles" id="bubbles"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo-circle">🐾</div>
+  <div class="header-text">
+    <h1>Fluff Around Find Out</h1>
+    <p>Content Studio — by Britt</p>
+  </div>
+  <div class="header-badge">✂️ Beta</div>
+</header>
+
+<!-- Tab nav -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('create')">✨ Create</button>
+  <button class="tab-btn" onclick="switchTab('queue')">📅 Queue</button>
+  <button class="tab-btn" onclick="switchTab('scripts')">🎬 Scripts</button>
+  <button class="tab-btn" onclick="switchTab('voice')">💅 Voice Profile</button>
+</div>
+
+<main>
+
+  <!-- ═══ CREATE TAB ═══ -->
+  <div class="tab-panel active" id="tab-create">
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-queued">0</div>
+        <div class="stat-label">Queued</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">3–5</div>
+        <div class="stat-label">Per Week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">🐾</div>
+        <div class="stat-label">Let's Go</div>
+      </div>
+    </div>
+
+    <p class="section-title">Upload Photos</p>
+    <p class="section-sub">Drop before & after pics — the app does the rest 🛁</p>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📸</div>
+      <h3>Tap to upload before & after photos</h3>
+      <p>JPG, PNG — upload as many as you want</p>
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+    </div>
+
+    <!-- Photo pairs -->
+    <div id="photoPairs"></div>
+
+    <!-- Post type selector -->
+    <div id="postTypeSection" style="display:none">
+      <p class="section-title" style="margin-top:4px">Post Type</p>
+      <p class="section-sub">What are we making? 🐾</p>
+      <div class="post-types">
+        <div class="post-type-btn selected" onclick="selectPostType(this,'carousel')" data-type="carousel">
+          <div class="pt-icon">🖼️</div>
+          <div class="pt-label">Carousel</div>
+        </div>
+        <div class="post-type-btn" onclick="selectPostType(this,'reel')" data-type="reel">
+          <div class="pt-icon">🎬</div>
+          <div class="pt-label">Reel</div>
+        </div>
+        <div class="post-type-btn" onclick="selectPostType(this,'both')" data-type="both">
+          <div class="pt-icon">⚡</div>
+          <div class="pt-label">Both!</div>
+        </div>
+      </div>
+
+      <!-- Platform selector -->
+      <p class="section-title">Platforms</p>
+      <p class="section-sub" style="margin-bottom:10px">Where is this going? 📲</p>
+      <div class="platform-pills">
+        <div class="platform-pill active" onclick="togglePlatform(this)" data-platform="instagram">
+          <div class="pill-dot"></div> Instagram
+        </div>
+        <div class="platform-pill active" onclick="togglePlatform(this)" data-platform="tiktok">
+          <div class="pill-dot"></div> TikTok
+        </div>
+      </div>
+
+      <!-- Notes field -->
+      <div class="field-group">
+        <label class="field-label">Dog notes (optional)</label>
+        <textarea id="dogNotes" placeholder="e.g. Goldendoodle, first visit, was nervous but warmed up, totally pelted on arrival…"></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="generateCaption()">✨ Generate Caption + Sound</button>
+    </div>
+
+    <!-- Output section -->
+    <div id="outputSection" style="display:none; margin-top:18px">
+      <div class="divider"></div>
+      <p class="section-title">Your Caption 💬</p>
+
+      <div id="generatingMsg" class="generating" style="display:none">
+        <div class="dot-pulse"><span></span><span></span><span></span></div>
+        Writing in Britt's voice…
+      </div>
+
+      <div style="position:relative" id="captionWrapper" style="display:none">
+        <div class="caption-box" id="captionOutput"></div>
+        <button class="copy-btn" onclick="copyCaption()">Copy</button>
+      </div>
+
+      <div id="soundSuggestion" style="display:none"></div>
+
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-ghost" onclick="regenerateCaption()">🔄 Regenerate</button>
+        <button class="btn btn-ghost" onclick="addToQueue()">📅 Add to Queue</button>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:4px" onclick="addToQueue()">
+        ➕ Add to Queue
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═══ QUEUE TAB ═══ -->
+  <div class="tab-panel" id="tab-queue">
+
+    <p class="section-title">This Week</p>
+    <p class="section-sub">Your scheduled posts 🗓️</p>
+
+    <div class="week-grid" id="weekGrid"></div>
+
+    <p class="section-title">Upcoming Posts</p>
+    <p class="section-sub">Ready to push to Buffer or Later ✅</p>
+
+    <div id="queueList">
+      <div class="empty-state">
+        <div class="es-icon">📭</div>
+        <p>No posts queued yet!<br>Head to Create to batch your first week. 🐾</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ SCRIPTS TAB ═══ -->
+  <div class="tab-panel" id="tab-scripts">
+
+    <p class="section-title">Educational Scripts</p>
+    <p class="section-sub">Pick a topic — get a full faceless video script ✂️</p>
+
+    <div class="topic-grid">
+      <div class="topic-btn selected" onclick="selectTopic(this,'doodle')" data-topic="doodle">
+        <div class="topic-emoji">🐩</div>
+        <div class="topic-title">The Doodle Tax</div>
+        <div class="topic-sub">Why doodles need more care</div>
+      </div>
+      <div class="topic-btn" onclick="selectTopic(this,'double')" data-topic="double">
+        <div class="topic-emoji">❄️</div>
+        <div class="topic-title">Double Coat PSA</div>
+        <div class="topic-sub">Stop shaving Huskies!</div>
+      </div>
+      <div class="topic-btn" onclick="selectTopic(this,'nervous')" data-topic="nervous">
+        <div class="topic-emoji">🥺</div>
+        <div class="topic-title">Nervous Dogs</div>
+        <div class="topic-sub">The anxious baby win</div>
+      </div>
+      <div class="topic-btn" onclick="selectTopic(this,'matting')" data-topic="matting">
+        <div class="topic-emoji">🪮</div>
+        <div class="topic-title">Matted Coats</div>
+        <div class="topic-sub">What groomers actually see</div>
+      </div>
+      <div class="topic-btn" onclick="selectTopic(this,'aftergroom')" data-topic="aftergroom">
+        <div class="topic-emoji">😤</div>
+        <div class="topic-title">Post-Groom Attitude</div>
+        <div class="topic-sub">Why your dog ignores you</div>
+      </div>
+      <div class="topic-btn" onclick="selectTopic(this,'schedule')" data-topic="schedule">
+        <div class="topic-emoji">📅</div>
+        <div class="topic-title">Booking Schedule</div>
+        <div class="topic-sub">How often is enough?</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="loadScript()" style="margin-bottom:16px">
+      🎬 Load Script
+    </button>
+
+    <div class="script-output" id="scriptOutput"></div>
+
+  </div>
+
+  <!-- ═══ VOICE PROFILE TAB ═══ -->
+  <div class="tab-panel" id="tab-voice">
+
+    <p class="section-title">Britt's Voice Profile</p>
+    <p class="section-sub">How the AI writes — always in her voice 💅</p>
+
+    <div class="card">
+      <div class="profile-stat">
+        <div class="profile-stat-icon">🎭</div>
+        <div>
+          <div class="profile-stat-label">Tone</div>
+          <div class="profile-stat-value">Funny and playful — having a good time and it shows. Never stiff, never corporate.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">🐾</div>
+        <div>
+          <div class="profile-stat-label">How she sees dogs</div>
+          <div class="profile-stat-value">They're babies. Fully invested in the drama, the fluff, and the chaos.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">🤝</div>
+        <div>
+          <div class="profile-stat-label">How she sees owners</div>
+          <div class="profile-stat-value">Fellow dog obsessives. She's talking <em>with</em> them, not at them.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">✂️</div>
+        <div>
+          <div class="profile-stat-label">Her vocabulary</div>
+          <div class="tag-row">
+            <span class="tag">doodle tax</span>
+            <span class="tag">deshed</span>
+            <span class="tag">pelted</span>
+            <span class="tag">matting</span>
+            <span class="tag">fluff dry</span>
+            <span class="tag">reactive dog</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">🔥</div>
+        <div>
+          <div class="profile-stat-label">What lights her up</div>
+          <div class="profile-stat-value">Dramatic before/afters, nervous babies who warm up, fixing rough coats, the matted coat rescue.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">📣</div>
+        <div>
+          <div class="profile-stat-label">Her soapbox (used warmly)</div>
+          <div class="profile-stat-value">Skipping appointments, shaving double-coated breeds, groomers who rush.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">😍</div>
+        <div>
+          <div class="profile-stat-label">Emojis</div>
+          <div class="profile-stat-value">Yes — liberally. 🐾✂️🛁✨ are her natural habitat.</div>
+        </div>
+      </div>
+      <div class="profile-stat">
+        <div class="profile-stat-icon">💬</div>
+        <div>
+          <div class="profile-stat-label">#1 feeling she conveys</div>
+          <div class="profile-stat-value">"She really loves what she does." Every post shows it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">Local Hashtag Set</p>
+    <p class="section-sub">Auto-appended to every post 📍</p>
+    <div class="card">
+      <div class="tag-row">
+        <span class="tag">#UtahDogs</span>
+        <span class="tag">#SaltLakeDogs</span>
+        <span class="tag">#UtahPets</span>
+        <span class="tag">#DavisCountyDogs</span>
+        <span class="tag">#ClintonUtah</span>
+        <span class="tag">#UtahGroomer</span>
+        <span class="tag">#DogGroomingUtah</span>
+        <span class="tag">#FluffAroundFindOut</span>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Bubble generator ──────────────────────────────────────────────
+(function() {
+  const container = document.getElementById('bubbles');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = 20 + Math.random() * 80;
+    b.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${8+Math.random()*14}s;
+      animation-delay:${-Math.random()*20}s;
+    `;
+    container.appendChild(b);
+  }
+})();
+
+// ── State ─────────────────────────────────────────────────────────
+let uploadedPhotos = [];
+let selectedPostType = 'carousel';
+let selectedTopic = 'doodle';
+let currentCaption = '';
+let currentSound = null;
+let queuedPosts = [];
+
+// ── Tab switching ─────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'queue') renderQueue();
+}
+
+// ── File handling ─────────────────────────────────────────────────
+function handleFiles(files) {
+  if (!files.length) return;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadedPhotos.push({ src: e.target.result, name: file.name });
+      renderPhotoPairs();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoPairs() {
+  const container = document.getElementById('photoPairs');
+  if (!uploadedPhotos.length) { container.innerHTML = ''; return; }
+
+  let html = '<div class="card"><div class="card-label">📸 Uploaded Photos — tap to mark Before / After</div><div class="pairs-grid">';
+  uploadedPhotos.forEach((p, i) => {
+    const tag = p.tag || 'untagged';
+    html += `
+      <div class="photo-slot" onclick="cycleTag(${i})">
+        <img src="${p.src}" alt="">
+        <div class="slot-overlay">
+          <span class="slot-badge ${tag === 'before' ? 'before' : tag === 'after' ? 'after' : ''}"
+            style="${tag==='untagged'?'background:#333;color:#888':''}">${tag}</span>
+          <span style="color:#888;font-size:0.65rem;cursor:pointer" onclick="removePhoto(event,${i})">✕</span>
+        </div>
+      </div>`;
+  });
+  html += '</div></div>';
+  container.innerHTML = html;
+  document.getElementById('postTypeSection').style.display = 'block';
+}
+
+function cycleTag(i) {
+  const tags = ['untagged','before','after'];
+  const curr = uploadedPhotos[i].tag || 'untagged';
+  const next = tags[(tags.indexOf(curr)+1) % tags.length];
+  uploadedPhotos[i].tag = next;
+  renderPhotoPairs();
+}
+
+function removePhoto(e, i) {
+  e.stopPropagation();
+  uploadedPhotos.splice(i, 1);
+  renderPhotoPairs();
+  if (!uploadedPhotos.length) {
+    document.getElementById('postTypeSection').style.display = 'none';
+    document.getElementById('outputSection').style.display = 'none';
+  }
+}
+
+// ── Post type ─────────────────────────────────────────────────────
+function selectPostType(el, type) {
+  document.querySelectorAll('.post-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPostType = type;
+}
+
+function togglePlatform(el) {
+  el.classList.toggle('active');
+}
+
+// ── Caption generation ────────────────────────────────────────────
+const captions = {
+  carousel: [
+    `This baby walked in absolutely PELTED and walked out looking like a whole new dog. ✂️✨ The before? We don't talk about the before. The after? We CELEBRATE the after. 😭🐾
+
+Matted coats happen to the best of us — no judgment here, just scissors and a whole lot of love. This is exactly what I'm here for. 🛁
+
+Book your baby in before things get out of hand — link in bio! 🐾
+
+#FluffAroundFindOut #DogGrooming #BeforeAndAfter #GroomingTransformation #UtahGroomer #UtahDogs #SaltLakeDogs #DogMom`,
+
+    `Another glow-up completed and I am NOT okay about how cute this turned out. 😍✂️
+
+This fluff baby came in looking a little rough around the edges and left absolutely snatched. We love a deshed season. We love a fresh scissor finish. We love DOGS. 🐾✨
+
+If your baby is overdue for a little refresh, you know where to find me. Link in bio! 🛁
+
+#FluffAroundFindOut #DogGroom #GlowUp #UtahPets #UtahGroomer #DavisCountyDogs #DogGroomingUtah`,
+
+    `Before → After and my heart is SO full. 🥺🐾
+
+This nervous little baby came in not sure about the whole situation and left strutting out of here like they owned the place. That's the job right there. ✂️✨
+
+Every dog deserves to feel comfortable AND cute. That's the Fluff Around Find Out promise. 🛁
+
+#FluffAroundFindOut #NervousDog #DogGrooming #BeforeAndAfter #UtahGroomer #UtahDogs #ClintonUtah`
+  ],
+  reel: [
+    `POV: You came in pelted and left absolutely snatched ✂️✨🐾
+
+The doodle tax was REAL today but we handled it with love. Deshed + scissor finish and this baby is UNRECOGNIZABLE (in the best way 😭).
+
+If your pup is overdue, don't be nervous — that's literally what I'm here for. Link in bio! 🛁
+
+#FluffAroundFindOut #DogGrooming #DoodleTax #GroomingTransformation #UtahGroomer #UtahDogs #DogMom #SaltLakeDogs`,
+
+    `Watch me take this floof from "oh no baby" to "oh WOW baby" ✂️🐾✨
+
+Before → After and I will never get tired of this part of my job. NEVER. 😭
+
+Fluff dry era is here and your dog deserves it. Book in — link in bio! 🛁
+
+#FluffAroundFindOut #DogGroom #BeforeAndAfter #UtahPets #UtahGroomer #DogGroomingUtah #DavisCountyDogs`
+  ],
+  both: [
+    `This transformation has me absolutely unhinged with happiness 😭✂️✨
+
+Came in: fully pelted, a little nervous, not so sure about Britt.
+Left: fluffy cloud baby, strutting, ready for their close-up. 🐾🛁
+
+That's what we do here at Fluff Around Find Out. Every single baby deserves to feel their best. No judgment on the before — only celebration on the after. ✨
+
+Book your baby in — link in bio!
+
+#FluffAroundFindOut #DogGrooming #BeforeAndAfter #GroomingGlowUp #UtahGroomer #UtahDogs #SaltLakeDogs #DogMom #DavisCountyDogs #DogGroomingUtah`
+  ]
+};
+
+const sounds = {
+  carousel: {
+    name: "Aesthetic — Tollan Kim",
+    why: "Soft, satisfying scroll energy. Perfect for before/after reveals.",
+    icon: "🎵"
+  },
+  reel: {
+    name: "Love You So — The King Khan & BBQ Show",
+    why: "Trending grooming reel audio — upbeat, feel-good, stops the scroll.",
+    icon: "🎶"
+  },
+  both: {
+    name: "Flowers — Miley Cyrus (sped up)",
+    why: "High energy trending sound — great for transformation reveals on both platforms.",
+    icon: "🎵"
+  }
+};
+
+async function generateCaption() {
+  document.getElementById('outputSection').style.display = 'block';
+  document.getElementById('generatingMsg').style.display = 'flex';
+  document.getElementById('captionWrapper').style.display = 'none';
+  document.getElementById('soundSuggestion').style.display = 'none';
+
+  // Simulate AI generation delay
+  await delay(1800);
+
+  const notes = document.getElementById('dogNotes').value;
+  const pool = captions[selectedPostType] || captions.carousel;
+  let caption = pool[Math.floor(Math.random() * pool.length)];
+
+  // Weave in dog notes if provided
+  if (notes.toLowerCase().includes('doodle')) {
+    caption = caption.replace('This baby', 'This doodle baby');
+  }
+  if (notes.toLowerCase().includes('nervous') || notes.toLowerCase().includes('anxious')) {
+    caption = caption.includes('nervous') ? caption :
+      caption.replace('walked in', 'came in a little nervous and walked in');
+  }
+
+  currentCaption = caption;
+  document.getElementById('generatingMsg').style.display = 'none';
+  document.getElementById('captionWrapper').style.display = 'block';
+  document.getElementById('captionOutput').textContent = caption;
+
+  // Sound suggestion
+  currentSound = sounds[selectedPostType] || sounds.carousel;
+  const soundHTML = `
+    <div class="sound-card">
+      <div class="sound-icon">${currentSound.icon}</div>
+      <div class="sound-info">
+        <div class="sound-label">🎵 Suggested Sound</div>
+        <div class="sound-name">${currentSound.name}</div>
+        <div class="sound-why">${currentSound.why}</div>
+      </div>
+    </div>`;
+  document.getElementById('soundSuggestion').innerHTML = soundHTML;
+  document.getElementById('soundSuggestion').style.display = 'block';
+}
+
+function regenerateCaption() {
+  generateCaption();
+}
+
+// ── Queue ─────────────────────────────────────────────────────────
+function addToQueue() {
+  if (!currentCaption) { showToast('Generate a caption first! 🐾'); return; }
+
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date();
+  const scheduled = new Date(today);
+  scheduled.setDate(today.getDate() + (queuedPosts.length === 0 ? 1 : queuedPosts.length + 1));
+
+  const beforePhoto = uploadedPhotos.find(p => p.tag === 'before');
+  const afterPhoto = uploadedPhotos.find(p => p.tag === 'after');
+
+  queuedPosts.push({
+    id: Date.now(),
+    type: selectedPostType,
+    caption: currentCaption,
+    sound: currentSound,
+    date: scheduled,
+    thumb: afterPhoto?.src || beforePhoto?.src || null,
+    platforms: [...document.querySelectorAll('.platform-pill.active')].map(p => p.dataset.platform)
+  });
+
+  document.getElementById('stat-queued').textContent = queuedPosts.length;
+  showToast('Added to queue! 🐾✨');
+  document.getElementById('outputSection').style.display = 'none';
+  currentCaption = '';
+}
+
+function renderQueue() {
+  // Week grid
+  const days = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today = new Date().getDay();
+  let weekHTML = '';
+  days.forEach((d, i) => {
+    const isToday = i === today;
+    const postsOnDay = queuedPosts.filter(p => p.date.getDay() === i);
+    weekHTML += `<div class="day-cell ${isToday?'today':''} ${postsOnDay.length?'has-post':''}">
+      <div class="day-name">${d}</div>
+      ${postsOnDay.map(p => `<div class="day-dot ${p.type==='reel'?'reel':p.type==='edu'?'edu':''}"></div>`).join('')}
+    </div>`;
+  });
+  document.getElementById('weekGrid').innerHTML = weekHTML;
+
+  // Queue list
+  const list = document.getElementById('queueList');
+  if (!queuedPosts.length) {
+    list.innerHTML = `<div class="empty-state"><div class="es-icon">📭</div><p>No posts queued yet!<br>Head to Create to batch your first week. 🐾</p></div>`;
+    return;
+  }
+
+  const typeLabels = { carousel:'Carousel', reel:'Reel', both:'Carousel + Reel', edu:'Script' };
+  const typeClasses = { carousel:'qt-carousel', reel:'qt-reel', both:'qt-carousel', edu:'qt-edu' };
+
+  list.innerHTML = queuedPosts.map((p, i) => `
+    <div class="queue-item">
+      <div class="queue-thumb">
+        ${p.thumb ? `<img src="${p.thumb}" alt="">` : '🐾'}
+      </div>
+      <div class="queue-info">
+        <div class="queue-meta">
+          <span class="queue-date">${p.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</span>
+          <span class="queue-type ${typeClasses[p.type]||'qt-carousel'}">${typeLabels[p.type]||p.type}</span>
+          ${p.platforms?.map(pl=>`<span class="queue-type" style="background:rgba(255,255,255,0.06);color:#888">${pl}</span>`).join('')||''}
+        </div>
+        <div class="queue-caption">${p.caption}</div>
+        ${p.sound ? `<div class="queue-sound">🎵 ${p.sound.name}</div>` : ''}
+      </div>
+      <div class="queue-actions">
+        <button onclick="copyQueueCaption(${i})" title="Copy caption">📋</button>
+        <button onclick="removeFromQueue(${i})" title="Remove">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function copyQueueCaption(i) {
+  navigator.clipboard.writeText(queuedPosts[i].caption).then(() => showToast('Caption copied! 🐾'));
+}
+
+function removeFromQueue(i) {
+  queuedPosts.splice(i, 1);
+  document.getElementById('stat-queued').textContent = queuedPosts.length;
+  renderQueue();
+  showToast('Removed from queue');
+}
+
+// ── Scripts ───────────────────────────────────────────────────────
+function selectTopic(el, topic) {
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTopic = topic;
+}
+
+const scripts = {
+  doodle: {
+    hook: `"If you have a doodle, I need you to watch this. 👀"`,
+    hookNote: `Bold text overlay on a close-up of a tangled doodle coat. Trending audio underneath.`,
+    body: [
+      { shot: `Fingers slowly parting a matted doodle coat, showing the tightness near the skin`, line: `"I love doodles. I do. But nobody told you the truth about their coats when you got one. 🐾"` },
+      { shot: `Wide shot of the dog on the table, coat clearly overgrown`, line: `"Doodle hair doesn't shed like other dogs. Instead it tangles with itself, traps debris, and mats tight against the skin — sometimes painfully."` },
+      { shot: `Close-up of a mat being carefully worked through with a comb`, line: `"This is what groomers call the doodle tax. ✂️ The longer between appointments, the more work it takes — and sometimes the only humane option is a shave-down and a fresh start."` },
+      { shot: `After shot — fluffy, clean, finished coat being fluffed with fingers`, line: `"The sweet spot for most doodles? Every 6 to 8 weeks. Book before you leave. Your groomer will love you. And so will your baby. 🐾✨"` }
+    ],
+    cta: `"Doodle parents — how often are you booking? Drop it below 👇 no judgment"`,
+    sound: `Aesthetic — Tollan Kim`
+  },
+  double: {
+    hook: `"Friendly reminder that shaving your Husky for summer is NOT the move. 🚫☀️"`,
+    hookNote: `Text overlay over a fluffy double-coated dog. No face needed.`,
+    body: [
+      { shot: `Hands running through a thick double coat, showing the depth of the undercoat`, line: `"That double coat is literally their built-in AC. The outer coat protects from sun and heat, and the undercoat insulates."` },
+      { shot: `Close-up of undercoat being removed during a deshed treatment`, line: `"When you shave a double coat, the layers grow back wrong and can never regulate temperature the same way again. It's called coat blow and it's a real thing. 😬"` },
+      { shot: `Finished dog after deshed — fluffy, clean, clearly more comfortable`, line: `"What we DO instead is a full deshed treatment. Gets rid of all that loose undercoat — way more effective than a shave, and a thousand times better for your baby. 🐾✨"` }
+    ],
+    cta: `"Double coat owners — have you ever been told to shave your dog for summer? Drop it below 👇 because WE NEED TO TALK."`,
+    sound: `Build a B*tch — Bella Poarch (trending grooming audio)`
+  },
+  nervous: {
+    hook: `"This little one came in shaking. Watch what happened. 🥺🐾"`,
+    hookNote: `Close-up of a small, nervous dog on the grooming table. Let the image do the work.`,
+    body: [
+      { shot: `Dog arriving, clearly tense — ears back, not sure about the table`, line: `"Reactive baby. First time with me. The whole situation was a lot for this little soul. 🥺"` },
+      { shot: `Hands gently working around the dog, slow and deliberate`, line: `"When a nervous dog comes in, my job isn't the haircut first. It's trust first. We go slow. We take breaks. We let them tell us what they need."` },
+      { shot: `Mid-groom — dog visibly more relaxed, ears forward, settling`, line: `"And somewhere around the fluff dry — this baby just… let go. Ears came forward. Tail came up. Started leaning into the brush."` },
+      { shot: `Finished dog — clean, styled, clearly happy`, line: `"These are the grooms that make me want to do this forever. 🐾✨ Every nervous baby deserves a groomer who'll take the time."` }
+    ],
+    cta: `"Does your dog get nervous at the groomer? Tell me about them below 👇 — I want to hear."`,
+    sound: `Golden Hour — JVKE`
+  },
+  matting: {
+    hook: `"This coat was completely pelted when this baby came in. Here's what that actually means. ✂️"`,
+    hookNote: `Still close-up of severely matted coat. No audio for first 2 seconds — let the image land.`,
+    body: [
+      { shot: `Fingers pressing gently into the matted coat, showing how tight it sits against the skin`, line: `"Matting isn't just tangled fur. When it gets to this stage, the mats pull tight against the skin — it can't breathe, gets raw, traps moisture. Your dog may not be showing it. But it's uncomfortable. 🥺"` },
+      { shot: `Hands gently working through the coat, slow and careful`, line: `"When I see a coat like this, my first job isn't the haircut. It's making sure this baby feels safe and calm — because a dog that's been uncomfortable for a while is often a nervous dog on the table."` },
+      { shot: `The big reveal — clean, finished dog standing on the table`, line: `"What I want every owner to know: you can always come to me. Whatever state your dog's coat is in, we figure it out together. That's the job. ✨"` }
+    ],
+    cta: `"Nervous about bringing in a dog with a rough coat? Please don't be. That's exactly what I'm here for. 🐾✂️ Link in bio to book."`,
+    sound: `Somewhere Only We Know — Keane`
+  },
+  aftergroom: {
+    hook: `"Your dog isn't mad at you after a groom. Let me explain 😂🐾"`,
+    hookNote: `Freshly groomed dog doing something dramatic — sitting with back to camera, looking offended.`,
+    body: [
+      { shot: `Dog sitting quietly post-groom, looking slightly dramatic`, line: `"You pick up your freshly groomed baby and they're giving you the cold shoulder. Won't look at you. A little theatrical about the whole thing."` },
+      { shot: `Close-up of the finished groom — clean ears, trimmed paws, fluffy coat`, line: `"Here's the truth. Your dog just went through a full spa day. Bath, blow dry, haircut, nail trim, ear cleaning — the works. 🛁✨ That is a LOT of sensory input for one afternoon."` },
+      { shot: `Dog sniffing its own paws like it doesn't recognize them`, line: `"They're not mad. They're exhausted and processing. Also some dogs are genuinely embarrassed by their haircut and I find that absolutely hilarious. 😭🐾"` },
+      { shot: `Dog trotting confidently, clearly proud`, line: `"The sulking lasts about 20 minutes. Then they're zooming around showing off their new look. Every time. They had a great time. I promise. ✂️"` }
+    ],
+    cta: `"Has your dog ever given you the silent treatment after a groom? TAG THEM below 👇😂 I need to see their faces."`,
+    sound: `Escapism — RAYE (slowed)`
+  },
+  schedule: {
+    hook: `"How often does your dog ACTUALLY need a groom? The answer might surprise you. 🐾✂️"`,
+    hookNote: `Text overlay on a before/after side-by-side. Clean, bold typography.`,
+    body: [
+      { shot: `Hands flipping through a calendar or appointment book (or just footage of the grooming table)`, line: `"Every breed is different. A short-coated Lab? Every 8 to 12 weeks is fine. A Poodle mix? We're talking every 6 to 8 weeks minimum."` },
+      { shot: `Close-up of a long-coated dog, running fingers through to show coat length`, line: `"The longer the coat, the more often they need to come in. If you wait too long between appointments, the coat mats — and then we're not just doing a haircut anymore. We're doing a rescue mission."` },
+      { shot: `Nice finished groom — a satisfying after`, line: `"The easiest way to keep your dog looking great AND keep costs down? Book the next appointment before you leave. Consistent grooms = happy dogs and happy wallets. 🐾✨"` }
+    ],
+    cta: `"Drop your breed below and I'll tell you how often they should be coming in 👇 — free advice, just here to help."`,
+    sound: `Need to Know — Doja Cat (clean, upbeat)`
+  }
+};
+
+function loadScript() {
+  const s = scripts[selectedTopic];
+  if (!s) return;
+
+  let html = `
+    <div class="script-section">
+      <div class="script-section-label">🎬 Hook — first 2 seconds</div>
+      <div class="script-text">${s.hook}</div>
+      <div class="shot-note">📽️ ${s.hookNote}</div>
+    </div>
+    <div class="script-section">
+      <div class="script-section-label">🎙️ Body — voiceover + shots</div>
+      ${s.body.map(b => `
+        <div style="margin-bottom:12px">
+          <div class="shot-note" style="margin-bottom:6px">📽️ Film: ${b.shot}</div>
+          <div class="script-text">${b.line}</div>
+        </div>`).join('')}
+    </div>
+    <div class="script-section">
+      <div class="script-section-label">📣 Call to Action</div>
+      <div class="script-text">${s.cta}</div>
+    </div>
+    <div class="sound-card" style="margin-top:4px">
+      <div class="sound-icon">🎵</div>
+      <div class="sound-info">
+        <div class="sound-label">Suggested Sound</div>
+        <div class="sound-name">${s.sound}</div>
+        <div class="sound-why">Search this in TikTok or Instagram audio library</div>
+      </div>
+    </div>`;
+
+  const out = document.getElementById('scriptOutput');
+  out.innerHTML = html;
+  out.classList.add('visible');
+
+  // Copy button
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn btn-ghost';
+  copyBtn.style.marginTop = '10px';
+  copyBtn.style.width = '100%';
+  copyBtn.textContent = '📋 Copy Full Script';
+  copyBtn.onclick = () => {
+    const text = s.body.map(b => `[Film: ${b.shot}]\n${b.line}`).join('\n\n');
+    const full = `HOOK: ${s.hook}\n\n${text}\n\nCTA: ${s.cta}\n\nSound: ${s.sound}`;
+    navigator.clipboard.writeText(full).then(() => showToast('Script copied! 🎬'));
+  };
+  out.appendChild(copyBtn);
+}
+
+// ── Utils ─────────────────────────────────────────────────────────
+function copyCaption() {
+  navigator.clipboard.writeText(currentCaption).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Drag and drop ─────────────────────────────────────────────────
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+</script>
+</body>
+</html>
